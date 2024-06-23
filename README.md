@@ -16,3 +16,11 @@ keytool -list -v -keystore "%USERPROFILE%\.android\debug.keystore" -alias androi
 ```
 다음 명령어를 그대로 치면 SHA-1 지문 인증서 키를 발급 받을 수 있다.
 ```
+## Google Maps API 키 제한
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/7bbde9de-50a9-4abe-a8be-6f5056fb8db4)
+```
+Android 앱의 사용량을 제한(패키지 이름, SHA-1 서명 인증서 지문 추가)
+```
+
+## MapView와 FloatingButton 추가
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/70eedfbb-b894-4694-9747-c04507a4b8bb)
