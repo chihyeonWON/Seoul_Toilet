@@ -44,4 +44,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    // 구글 맵 관련 라이브러리
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+
+    // 구글 맵 클러스터 사용을 위한 라이브러리
+    implementation("com.google.maps.android:android-maps-utils:0.5+")
 }
