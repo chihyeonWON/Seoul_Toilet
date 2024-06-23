@@ -50,4 +50,11 @@ dependencies {
 
     // 구글 맵 클러스터 사용을 위한 라이브러리
     implementation("com.google.maps.android:android-maps-utils:0.5+")
+
+    // 맵 서치 바 카드를 만들기 위한 CardView 라이브러리
+    implementation("com.android.support:cardview-v7:28.0.0")
+
+    // 현재위치 버튼에서 사용하는 FloatingActionButton 사용을 위한 라이브러리
+    implementation("com.android.support:design:28.0.0")
+
 }
