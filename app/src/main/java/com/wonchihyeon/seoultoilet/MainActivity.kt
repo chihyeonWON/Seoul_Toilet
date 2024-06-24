@@ -146,4 +146,25 @@ class MainActivity : AppCompatActivity() {
             ) else -> Toast.makeText(applicationContext, "위치권한 설정에 동의해주세요.", Toast.LENGTH_SHORT).show()
         }
     }
+
+    // 하단부터 맵뷰의 라이프사이클 함수 호출을 위한 코드들
+    override fun onResume() {
+        super.onResume()
+        binding.mapView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.mapView.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.mapView.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        binding.mapView.onLowMemory()
+    }
 }
