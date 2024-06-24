@@ -37,6 +37,11 @@ Android 앱의 사용량을 제한(패키지 이름, SHA-1 서명 인증서 지�
 정확한 위치 권한을 얻고 (coarse(네트워크), fine(gps위성)) manifest파일에 api키를 등록한 후
 액티비티에서 바로 지도를 crate한 모습이다.
 ```
+## 에뮬레이터의 현재 위치 설정
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/a5dfd4cd-3326-46cb-bddd-9842a86554f2)
+```
+현재 GPS 상의 위치를 서울 시청으로 Set Location 위치 고정하고 개발을 진행하였습니다.
+```
 ## 위치 권한 거부 시
 ![2024-06-24 11;04;36](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/45cea2a4-bdec-413b-91ca-84b1dbe2bb7c)
 ```
