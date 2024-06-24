@@ -16,6 +16,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SeoulToilet"
         tools:targetApi="31">
+
+        <!-- 구글 클라우드 플랫폼에서 발급받은 API키 여기에 -->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDFonf-qduRrRu6e3GINit2dJNTxUlM6oA" />
+        <!-- 구글 플레이 서비스 버전을 적는 곳으로 그대로 타이핑 -->
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <!-- 안드로이드 파이 버전부터 필요 -->
+        <uses-library android:name="org.apache.http.legacy"
+            android:required="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
