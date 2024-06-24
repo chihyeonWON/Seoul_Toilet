@@ -7,6 +7,7 @@ import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -43,8 +44,15 @@ class MainActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        // 맵뷰에 onCreate 함수 호출
-        binding.mapView.onCreate(savedInstanceState)
+        with(binding) {
+            // 맵뷰에 onCreate 함수 호출
+            mapView.onCreate(savedInstanceState)
+
+            // 현재 위치 버튼을 클릭했을 때
+            myLocationButton.setOnClickListener{
+                onMyLocationButtonClick()
+            }
+        }
 
         // 앱이 실행될때 런타임에서 위치 서비스 관련 권한체크
         if (hasPermission()) {
@@ -101,7 +109,7 @@ class MainActivity : AppCompatActivity() {
                     // 현재위치로 카메라 이동
                     it.moveCamera(
                         CameraUpdateFactory.newLatLngZoom(
-                            getMyLocation(), DEFAULT_ZOOM_LEVEL
+                            getMyLocation()!!, DEFAULT_ZOOM_LEVEL
                         )
                     )
                 }
@@ -115,15 +123,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    fun getMyLocation(): LatLng {
-        // 위치를 측정하는 프로바이더를 GPS 센서로 지정
+    fun getMyLocation(): LatLng? {
         val locationProvider: String = LocationManager.GPS_PROVIDER
-        // 위치 서비스 객체를 불러옴
-        val locationManager =
-            getSystemService(LOCATION_SERVICE) as LocationManager
-        // 마지막으로 업데이트된 위치를 가져옴
-        val lastKnownLocation: Location = locationManager.getLastKnownLocation(locationProvider)!!
-        // 위도 경도 객체로 변환
-        return LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
+        val locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
+        val lastKnownLocation: Location? = locationManager.getLastKnownLocation(locationProvider)
+        // null 체크를 추가하여 안전하게 처리
+        return if (lastKnownLocation != null) {
+            LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
+        } else {
+            LatLng(37.56662952, 126.97794509999994)// 혹은 기본 위치로 대체
+        }
+    }
+
+    // 현재 위치 버튼 클릭한 경우
+    fun onMyLocationButtonClick() {
+        when {
+            hasPermission() -> googleMap?.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    getMyLocation()!!,
+                    DEFAULT_ZOOM_LEVEL
+                )
+            ) else -> Toast.makeText(applicationContext, "위치권한 설정에 동의해주세요.", Toast.LENGTH_SHORT).show()
+        }
     }
 }
