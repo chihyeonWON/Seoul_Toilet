@@ -1,3 +1,9 @@
+```
+목표
+Legacy Code를 최신 코틀린 버전의 코드로 수정한다.
+위치 관련 라이브러리의 사용법을 익히고 api를 사용한 마커, 위치 클러스터링의 작업을 수행한다.
+```
+
 ## ADB(Android Debug Bridge)b 환경 설정
 1. Android Sdk Location 확인
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/414395d7-cdcc-470b-879f-d81d5b969644)
