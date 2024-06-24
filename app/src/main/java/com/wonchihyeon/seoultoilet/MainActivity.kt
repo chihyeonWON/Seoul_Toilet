@@ -120,10 +120,10 @@ class MainActivity : AppCompatActivity() {
         val locationProvider: String = LocationManager.GPS_PROVIDER
         // 위치 서비스 객체를 불러옴
         val locationManager =
-            getSystemService(android.content.Context.LOCATION_SERVICE) as LocationManager
+            getSystemService(LOCATION_SERVICE) as LocationManager
         // 마지막으로 업데이트된 위치를 가져옴
-        val lastKnownLocation: Location? = locationManager.getLastKnownLocation(locationProvider)
+        val lastKnownLocation: Location = locationManager.getLastKnownLocation(locationProvider)!!
         // 위도 경도 객체로 변환
-        return LatLng(lastKnownLocation!!.latitude, lastKnownLocation!!.longitude)
+        return LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
     }
 }
