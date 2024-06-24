@@ -52,3 +52,5 @@ Android 앱의 사용량을 제한(패키지 이름, SHA-1 서명 인증서 지�
 ```
 위치 권한 수락 시 현재 위치를 서울 시청으로 설정하였습니다.
 ```
+## OpenAPI Key 발급
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/b9c14154-dca7-4d88-84e6-471bba7e781b)
