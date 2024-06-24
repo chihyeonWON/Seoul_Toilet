@@ -57,3 +57,12 @@ Android 앱의 사용량을 제한(패키지 이름, SHA-1 서명 인증서 지�
 ```
 ## OpenAPI Key 발급
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/b9c14154-dca7-4d88-84e6-471bba7e781b)
+
+## Thread 와 AsyncTask
+
+```
+메인 스레드(UI 스레드)로 돌아가야하는 UI 작업 실행시 UI 쓰레드로 전환하는 작업이 필요한 데 이때 실수를 방지하기 위한 수단으로
+AsyncTask를 사용하였습니다.
+
+백그라운드에서 API 서버에서 데이터를 받아오는 작업을 실행하기 위한 doInBackground와 같은 메서드를 오버라이드 하여 구현한다.
+```
