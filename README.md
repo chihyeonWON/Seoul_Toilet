@@ -24,3 +24,10 @@ Android 앱의 사용량을 제한(패키지 이름, SHA-1 서명 인증서 지�
 
 ## MapView와 FloatingButton 추가
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/70eedfbb-b894-4694-9747-c04507a4b8bb)
+
+## MapView에 OnCreate 함수 호출
+![2024-06-24 10;39;10](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/ab2ad852-84b4-46fd-8b16-d111b5c4d1bd)
+```
+정확한 위치 권한을 얻고 (coarse(네트워크), fine(gps위성)) manifest파일에 api키를 등록한 후
+액티비티에서 바로 지도를 crate한 모습이다.
+```
