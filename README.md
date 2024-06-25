@@ -68,7 +68,7 @@ AsyncTask를 사용하였습니다.
 ## 서버에서 넘어오는 JSON 형식의 공공데이터
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/7f59168a-de55-4487-a9dd-665606dc2c9d)
 
-## 공공 데이터 API 연동
+## 24.06.25 공공 데이터 API 연동
 ![2024-06-25 18;19;17](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/47e68631-6bc1-4572-b4b0-31ffc106ad90)
 
 ## API 연동 코드 리뷰
