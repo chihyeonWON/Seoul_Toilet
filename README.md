@@ -65,7 +65,7 @@ AsyncTask를 사용하였습니다.
 
 백그라운드에서 API 서버에서 데이터를 받아오는 작업을 실행하기 위한 doInBackground와 같은 메서드를 오버라이드 하여 구현한다.
 ```
-## 공공데이터 JSON 데이터
+## 서버에서 넘어오는 JSON 형식의 공공데이터
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/7f59168a-de55-4487-a9dd-665606dc2c9d)
 
 ## 공공 데이터 API 연동
