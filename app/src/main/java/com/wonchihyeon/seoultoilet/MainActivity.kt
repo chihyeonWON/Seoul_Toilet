@@ -16,6 +16,7 @@ import androidx.databinding.DataBindingUtil
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -148,11 +149,27 @@ class MainActivity : AppCompatActivity() {
                             getMyLocation()!!, DEFAULT_ZOOM_LEVEL
                         )
                     )
+                    // 카메라의 위치와 각도를 설정합니다.
+                    val cameraPosition = CameraPosition.Builder()
+                        .target(CITY_HALL)
+                        .zoom(17f)
+                        .bearing(0f) // 방향 설정
+                        .tilt(90f) // 각도 설정
+                        .build()
+                    it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
                 }
 
                 else -> {
                     // 권한이 없으면 서울시청의 위치로 이동
                     it.moveCamera(CameraUpdateFactory.newLatLngZoom(CITY_HALL, DEFAULT_ZOOM_LEVEL))
+                    // 카메라의 위치와 각도를 설정합니다.
+                    val cameraPosition = CameraPosition.Builder()
+                        .target(CITY_HALL)
+                        .zoom(17f)
+                        .bearing(0f) // 방향 설정
+                        .tilt(90f) // 각도 설정
+                        .build()
+                    it.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
                 }
             }
         }
