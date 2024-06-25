@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
 
     // 권한 요청의 결과로 맵 초기화
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         // 맵 초기화
@@ -260,7 +260,7 @@ class MainActivity : AppCompatActivity() {
             //인덱스 0의 데이터를 사용
             val array = values[0]
             array?.let {
-                for(i in 0 until array.length()) {
+                for (i in 0 until array.length()) {
                     // 마커 추가
                     addMarkers(array.getJSONObject(i))
                 }
@@ -268,12 +268,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         fun addMarkers(toilet: JSONObject) {
-            googleMap?.addMarker(
-                MarkerOptions()
-                    .position(LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")))
-                    .title(toilet.getString("FNAME"))
-                    .snippet(toilet.getString("ANAME"))
-                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+            clusterManager?.addItem(
+                MyItem(
+                    LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
+                    toilet.getString("FNAME"),
+                    toilet.getString("ANAME"),
+                    BitmapDescriptorFactory.fromBitmap(bitmap)
+                )
             )
         }
     }
