@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.maps.android.clustering.ClusterManager
 import com.wonchihyeon.seoultoilet.databinding.ActivityMainBinding
 import org.json.JSONArray
 import org.json.JSONObject
@@ -61,6 +62,12 @@ class MainActivity : AppCompatActivity() {
         val drawable = resources.getDrawable(R.drawable.restroom_sign) as BitmapDrawable
         Bitmap.createScaledBitmap(drawable.bitmap, 64, 64, false)
     }
+
+    // ClusterManager 변수 선언
+    var clusterManager: ClusterManager<MyItem>? = null
+
+    // ClusterRenderer 변수 선언
+    var clusterRenderer: ClusterRenderer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -116,6 +123,14 @@ class MainActivity : AppCompatActivity() {
     fun initMap() {
         // 맵뷰에서 구글 맵을 불러오는 함수, 콜백함수에서 구글 맵 객체가 전달됨
         binding.mapView.getMapAsync {
+            // ClusterManger 객체 초기화
+            clusterManager = ClusterManager(this, it)
+            clusterRenderer = ClusterRenderer(this, it, clusterManager)
+
+            // OnCameraIdleListener와 OnMarkerClickListener 를 clusterManager로 지정
+            it.setOnCameraIdleListener(clusterManager)
+            it.setOnMarkerClickListener(clusterManager)
+
             // 구글맵 멤버 변수에 구글맵 객체 저장
             googleMap = it
 
