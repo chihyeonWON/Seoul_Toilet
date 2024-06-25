@@ -73,7 +73,7 @@ AsyncTask를 사용하였습니다.
 
 ## API 연동 코드 리뷰
 
-## 백그라운드 작업 취소를 위한 변수 선언 
+#### 백그라운드 작업 취소를 위한 변수 선언 
 ```kotlin
 // 앱이 비활성화될때 백그라운드 작업도 취소하기 위한 변수 선언
 var task: ToiletReadTask? = null
@@ -98,7 +98,7 @@ var task: ToiletReadTask? = null
 백그라운드 태스크를 실행하고 취소하는 코드에서 사용하기 위해서 task 변수를 선언하여 사용하였습니다.
 ```
 
-## 서울시 화장실 공공 데이터를 전부 저장할 변수
+#### 서울시 화장실 공공 데이터를 전부 저장할 변수
 ```kotlin
 // 서울시 화장실 정보 집합을 저장할 Array 변수, 검색을 위해 저장
     var toilets = JSONArray()
@@ -107,7 +107,7 @@ var task: ToiletReadTask? = null
 서버에서 넘어오는 json 데이터를 JSON 객체 Array로 선언하여 저장하였습니다. 향후에 검색 기능을 개발하기 위해서 필요합니다.
 ```
 
-## 비트맵 리사이징
+#### 비트맵 리사이징
 ```kotlin
     // 화장실 이미지로 사용할 Bitmap
     val bitmap by lazy {
@@ -119,7 +119,7 @@ var task: ToiletReadTask? = null
 구글 맵에 이미지 사이즈를 맞추기 위해 비트맵을 초기화하는 코드에 리사이징하는 코드를 추가하였습니다.
 ```
 
-## JSONArray 객체의 병합을 위한 확장 함수
+####  JSONArray 객체의 병합을 위한 확장 함수
 ```kotlin
  // JSONArray 를 병합하기 위해 확장함수 사용
     fun JSONArray.merge(anotherArray: JSONArray) {
@@ -133,7 +133,7 @@ JSONArray는 json 데이터의 집합을 구조화하여 접근할 수 있는 �
 JSONArray 클래스에 병합하기 위한 기능을 추가(확장)하기 위해서 확장함수를 사용하였습니다.
 ```
 
-## Open API에서 데이터를 읽어오는 readData 함수
+#### Open API에서 데이터를 읽어오는 readData 함수
 ```kotlin
   // 화장실 정보를 읽어와 JSONObject 로 반환하는 함수
     fun readData(startIndex: Int, lastIndex: Int): JSONObject {
@@ -150,7 +150,7 @@ JSONArray 클래스에 병합하기 위한 기능을 추가(확장)하기 위해
 반복적인 작업이기 때문에 이를 함수로 분리하여 재사용성을 높였습니다.
 ```
 
-## AsyncTask 
+#### AsyncTask 
 ```kotlin
 // 화장실 데이터를 읽어오는 AsyncTask
     inner class ToiletReadTask : AsyncTask<Void, JSONArray, String>() {
@@ -226,7 +226,7 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
 가변 파라미터 vararg 키워드를 사용해서 호출하는 쪽에서 파라미터의 개수를 늘릴 수 있도록 하였습니다.
 ```
 
-## 마커 표시
+#### 마커 표시
 ![2024-06-25 18;33;00](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/394b8d2c-7342-4ee4-8036-d9a6a217ebc0)
 ```kotlin
  fun addMarkers(toilet: JSONObject) {
@@ -246,7 +246,13 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
 여기서는 json 데이터의 FNAME 과 ANAME을 줘서 구현했습니다.
 ```
 
+## 클러스터 작업
+#### 발생한 문제 상황
+![2024-06-25 18;56;43](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/b6bdafda-163e-4941-90e7-7228484f1714)
+```
+구글 맵을 축소화할 때 마커가 겹쳐서 알아보기 힘들어집니다.
 
-
+구글 맵의 util 라이브러리를 사용하여 자동으로 마커가 여러 개 겹친 경우 원의 숫자를 보여주도록 하여 문제를 개선해야 할 필요성이 있습니다.
+```
 
 
