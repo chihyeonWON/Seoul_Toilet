@@ -71,10 +71,27 @@ AsyncTask를 사용하였습니다.
 ## 공공 데이터 API 연동
 ![2024-06-25 18;19;17](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/47e68631-6bc1-4572-b4b0-31ffc106ad90)
 
+## API 연동 코드 리뷰
 
+## 마커 표시
+![2024-06-25 18;33;00](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/394b8d2c-7342-4ee4-8036-d9a6a217ebc0)
+```kotlin
+ fun addMarkers(toilet: JSONObject) {
+            googleMap?.addMarker(
+                MarkerOptions()
+                    .position(LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")))
+                    .title(toilet.getString("FNAME"))
+                    .snippet(toilet.getString("ANAME"))
+                    .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+            )
+        }
+```
+```
+마커를 추가하는 함수 부분입니다. JSON 데이터의 위도와 경도 항목을 읽어서 마커 객체를 만들고 구글 맵 객체에 addMarker() 함수를 이용해 추가했습니다.
 
-
-
+선택 옵션인 snippet, icon은 마커를 클릭했을 때 풍선 도움말로 표시하는 정보입니다.
+여기서는 json 데이터의 FNAME 과 ANAME을 줘서 구현했습니다.
+```
 
 
 
