@@ -285,4 +285,67 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
 ```
 equals 를 오버라이딩한 경우 반드시 오버라이드해야하는 hashCode함수 입니다. hash 값을 생성하여 반환합니다.
 ```
+#### ClusterRenderer 클래스 구현
+```
+앱의 마커의 아이콘을 변경하므로 마커를 렌더링 작업을 담당하는 클래스인 ClusterRenderer 클래스를 구현하였습니다.
+```
+```kotlin
+init {
+        // 전달받은 clusterManager 객체에 renderer를 자신으로 지정
+        clusterManager?.renderer = this
+    }
+```
+```
+초기화 부분에서 ClusterManager 클래스의 렌더러를 자신으로 지정합니다.
+```
+```kotlin
+// 클러스터 아이템이 렌더링 되기전 호출되는 함수
+    override fun onBeforeClusterItemRendered(item: MyItem?, markerOptions: MarkerOptions?) {
+        // 마커의 아이콘 지정
+        markerOptions?.icon(item?.getIcon())
+        markerOptions?.visible(true)
+    }
+```
+```
+마커의 아이콘을 지정하였습니다.
+```
+#### 구글 맵에 ClusterManager 연동
+```kotlin
+ // ClusterManger 객체 초기화
+            clusterManager = ClusterManager(this, it)
+            clusterRenderer = ClusterRenderer(this, it, clusterManager)
 
+            // OnCameraIdleListener와 OnMarkerClickListener 를 clusterManager로 지정
+            it.setOnCameraIdleListener(clusterManager)
+            it.setOnMarkerClickListener(clusterManager)
+```
+```
+initMap() 함수에서 clusterManager 객체를 초기화하였습니다.
+```
+```kotlin
+fun addMarkers(toilet: JSONObject) {
+            clusterManager?.addItem(
+                MyItem(
+                    LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
+                    toilet.getString("FNAME"),
+                    toilet.getString("ANAME"),
+                    BitmapDescriptorFactory.fromBitmap(bitmap)
+                )
+            )
+        }
+```
+```
+마커를 추가하는 addMarkers에서 clusterManager를 이용해서 마커를 추가하도록 변경하였습니다.
+```
+```kotlin
+// clusterManager의 클러스터링 실행
+            clusterManager?.cluster()
+```
+```
+데이터를 읽어 오는 지점마다 맵에 클러스터를 업데이트(클러스터링 진행)하기 위하여 onProgressUpdate() 함수를 수정하였습니다.
+```
+## 클러스터링 작업 수행 후
+![2024-06-26 01;28;16](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/627e127d-f125-4082-9430-a898bf85cfe2)
+```
+클러스터링 작업을 수행하여 마커가 겹치는 경우 마커의 개수를 숫자로 보여주게 되어 마커가 겹쳐 알아보기 힘든 문제를 성공적으로 해결하였습니다.
+```
