@@ -265,6 +265,9 @@ class MainActivity : AppCompatActivity() {
                     addMarkers(array.getJSONObject(i))
                 }
             }
+
+            // clusterManager의 클러스터링 실행
+            clusterManager?.cluster()
         }
 
         fun addMarkers(toilet: JSONObject) {
