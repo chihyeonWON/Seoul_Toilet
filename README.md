@@ -639,7 +639,7 @@ setOnItemClickListener 를 사용하여 선택된 아이템의 텍스트로 바�
 더 가시성 좋은 마커 이미지로 수정하였습니다.
 ```
 ## 24.06.26 위치 권한 설명 페이지
-![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/30a3dae3-549d-4af0-9d68-041532b7f00d)
+![2024-06-26 16;49;15](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/c31bc317-27d9-4618-821b-f87077c48870)
 ```
 앱 초기 시 서비스 이용을 위해 필요한 권한 접근의 종류와 그 접근이 왜 필요한지를 설명하는 페이지를 알려준다음 메인페이지로 이동하도록 수정합니다.
 ```
