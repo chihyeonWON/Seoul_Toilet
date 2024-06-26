@@ -490,5 +490,115 @@ CardView와 ConstraintLayout 안에 자동완성 검색 기능을 위한 AutoCom
 ```
 MainActivity에 앞서 만든 검색 바 UI 를 include 태그를 사용하여 추가하였습니다.
 ```
+#### 검색 기능 구현
+```kotlin
+ // 백그라운드 작업이 완료된 후 실행될 코드를 여기에 배치
+            withContext(Dispatchers.Main) {
+                // 자동완성 텍스트뷰(AutoCompleteTextView)에서 사용할 텍스트 리스트
+                val textList = mutableListOf<String>()
+
+                // 모든 화장실의 이름을 텍스트 리스트에 추가
+                for (i in 0 until toilets.length()) {
+                    val toilet = toilets.getJSONObject(i)
+                    textList.add(toilet.getString("FNAME"))
+                }
+
+                // 자동완성 텍스트뷰에서 사용하는 어댑터 추가
+                val adapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    textList
+                )
+
+                // 자동완성이 시작되는 글자수 지정
+                autoCompleteTextView.threshold = 1
+                // autoCompleteTextView의 어댑터를 상단에서 만든 어댑터로 지정
+                autoCompleteTextView.setAdapter(adapter)
+            }
+```
+```
+자동완성텍스트뷰에 사용할 텍스트 리스트를 생성하고 리스트에 화장실 이름을 모두 넣고 어댑터를 추가하였습니다.
+```
+```kotlin
+ fun addMarkers(toilet: JSONObject) {
+        val item = MyItem(
+            LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
+            toilet.getString("FNAME"),
+            toilet.getString("ANAME"),
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        )
+
+        // 아이템맵에 toilet 객체를 키로 MyItem 객체 저장
+        itemMap.put(toilet, item)
+
+        clusterManager?.addItem(
+            MyItem(
+                LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
+                toilet.getString("FNAME"),
+                toilet.getString("ANAME"),
+                BitmapDescriptorFactory.fromBitmap(bitmap)
+            )
+        )
+```
+```
+마커를 추가하는 함수에 toilet 객체를 키로한 MyItem 객체를 itemMap 변수에 저장하였습니다.
+```
+```kotlin
+ // JSONArray에서 원소의 속성으로 원소를 검색.
+    // propertyName: 속성이름
+    // value: 값
+    fun JSONArray.findByChildProperty(propertName: String, value: String): JSONObject? {
+        // JSONObject를 순회하면서 각 JSONObject의 프로퍼티의 값이 같은지 확인
+        for (i in 0 until length()) {
+            val obj = getJSONObject(i)
+            if (value == obj.getString(propertName)) return obj
+        }
+        return null
+    }
+```
+```
+JSONObject를 순회하면서 속성이름 즉 자동완성텍스트뷰로 입력한 화장실 이름 텍스트를 기준으로 검색합니다.
+```
+```kotlin
+// searchBar 의 검색 아이콘의 이벤트 리스너 설정
+        imageView.setOnClickListener {
+            // autoCompleteTextView 의 텍스트를 읽어 키워드로 가져옴
+            val keyword = autoCompleteTextView.text.toString()
+            // 키워드 값이 없으면 그대로 리턴
+            if (TextUtils.isEmpty(keyword)) return@setOnClickListener
+            // 검색 키워드에 해당하는 JSONObject 를 찾는다.
+            toilets.findByChildProperty("FNAME", keyword)?.let {
+                // itemMap 에서 JSONObject 를 키로 가진 MyItem 객체를 가져온다.
+                val myItem = itemMap[it]
+                // ClusterRenderer 에서 myItem 을 기반으로 마커를 검색한다.
+                // myItem 은 위도,경도,제목,설명 속성이 같으면 같은 객체로 취급됨
+                val marker = clusterRenderer?.getMarker(myItem)
+                // 마커에 인포 윈도우를 보여준다
+                marker?.showInfoWindow()
+                // 마커의 위치로 맵의 카메라를 이동한다.
+                googleMap?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(it.getDouble("Y_WGS84"), it.getDouble("X_WGS84")), DEFAULT_ZOOM_LEVEL
+                    )
+                )
+                clusterManager?.cluster()
+            }
+
+            // 검색 텍스트뷰의 텍스트를 지운다.
+            autoCompleteTextView.setText("")
+```
+```
+onStart()에서 searchBar의 검색 아이콘을 클릭하면 다음 로직이 수행됩니다.
+앞서 생성한 검색 함수의 매개변수로 화장실이름을 propertyName으로 넘겨주고 myItem 객체를 키로 기반하여 마커를 검색합니다.
+만약 검색된 객체가 있다면 해당 객체의 위도와 경도로 카메라 경로를 이동시키고 마커의 인포 윈도우(title, snippet)를 보여줍니다.
+```
+## 검색 기능이 추가된 화장실 찾기 앱
+![2024-06-26 15;32;06](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/5798df39-1534-4ef1-9f36-7e65af7262bd)
+```
+검색창에 성수를 입력하면 성~으로 시작하는 화장실 이름 리스트가 입력창 아래에 나타나게 되고 이 중에 내가 원하는 화장실 이름을 입력하고
+검색 버튼을 누르면 해당 화장실로 카메라가 이동하며 해당 화장실의 정보(이름, snippet)가 나타나게 됩니다.
+
+다음으로 이 앱에 Firebase 데이터베이스를 사용하여 더 사용자에게 좋은 기능을 제공할 수 있도록 수정합니다.
+```
 
 ## 사용자 별점 기능, 한 줄 평가 기능 추가
