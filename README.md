@@ -633,4 +633,9 @@ onStart()에서 searchBar의 검색 아이콘을 클릭하면 다음 로직이 �
 ```
 setOnItemClickListener 를 사용하여 선택된 아이템의 텍스트로 바로 검색할 수 있도록 하여 사용자의 편의성을 높혔습니다.
 ```
+## 마커 이미지 변경
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/6f3708b0-1648-4030-89a6-ff9c7a76d4cc)
+```
+더 가시성 좋은 마커 이미지로 수정하였습니다.
+```
 ## 사용자 별점 기능, 한 줄 평가 기능 추가
