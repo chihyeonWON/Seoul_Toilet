@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- 현재 위치를 위한 권한 요청-->
+    <!-- 현재 위치를 위한 권한 요청 -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 네트워크 위치 -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" /> <!-- gps 센서 위치 -->
-
-    <!-- 인터넷 사용 권한 요청-->
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- 인터넷 사용 권한 요청 -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -17,28 +15,33 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SeoulToilet"
+        android:theme="@style/Base.Theme.SeoulToilet"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-
-        <!-- 구글 클라우드 플랫폼에서 발급받은 API키 여기에 -->
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDFonf-qduRrRu6e3GINit2dJNTxUlM6oA" />
-        <!-- 구글 플레이 서비스 버전을 적는 곳으로 그대로 타이핑 -->
-        <meta-data android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <!-- 안드로이드 파이 버전부터 필요 -->
-        <uses-library android:name="org.apache.http.legacy"
-            android:required="false" />
-
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".IntroActivity"
+            android:exported="true" >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <!-- 구글 클라우드 플랫폼에서 발급받은 API키 여기에 -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDFonf-qduRrRu6e3GINit2dJNTxUlM6oA" /> <!-- 구글 플레이 서비스 버전을 적는 곳으로 그대로 타이핑 -->
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" /> <!-- 안드로이드 파이 버전부터 필요 -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
         </activity>
     </application>
 
