@@ -600,5 +600,37 @@ onStart()에서 searchBar의 검색 아이콘을 클릭하면 다음 로직이 �
 
 다음으로 이 앱에 Firebase 데이터베이스를 사용하여 더 사용자에게 좋은 기능을 제공할 수 있도록 수정합니다.
 ```
+## 검색 리스트 텍스트를 클릭해도 검색되도록 수정
+![2024-06-26 15;42;00](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/26d298da-6d97-4134-9570-eb5e7d8b2a59)
+```kotlin
+ // AutoCompleteTextView의 항목 선택 이벤트 리스너 설정
+        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            // 선택된 항목의 텍스트를 가져옴
+            val keyword = autoCompleteTextView.adapter.getItem(position).toString()
+            // 키워드 값이 없으면 그대로 리턴
+            if (TextUtils.isEmpty(keyword)) return@setOnItemClickListener
+            // 검색 키워드에 해당하는 JSONObject 를 찾는다.
+            toilets.findByChildProperty("FNAME", keyword)?.let {
+                // itemMap 에서 JSONObject 를 키로 가진 MyItem 객체를 가져온다.
+                val myItem = itemMap[it]
+                // ClusterRenderer 에서 myItem 을 기반으로 마커를 검색한다.
+                // myItem 은 위도,경도,제목,설명 속성이 같으면 같은 객체로 취급됨
+                val marker = clusterRenderer?.getMarker(myItem)
+                // 마커에 인포 윈도우를 보여준다
+                marker?.showInfoWindow()
+                // 마커의 위치로 맵의 카메라를 이동한다.
+                googleMap?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(it.getDouble("Y_WGS84"), it.getDouble("X_WGS84")), DEFAULT_ZOOM_LEVEL
+                    )
+                )
+                clusterManager?.cluster()
+            }
 
+            // 검색 텍스트뷰의 텍스트를 지운다.
+            autoCompleteTextView.setText("")
+```
+```
+setOnItemClickListener 를 사용하여 선택된 아이템의 텍스트로 바로 검색할 수 있도록 하여 사용자의 편의성을 높혔습니다.
+```
 ## 사용자 별점 기능, 한 줄 평가 기능 추가
