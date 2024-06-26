@@ -478,5 +478,9 @@ fun addMarkers(toilet: JSONObject) {
 사용자의 편의성을 위해서 검색 기능을 추가하여야 합니다.
 ```
 #### 검색 UI 설계 
-
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/4a0f8e2c-a865-4634-bb50-f5f84a0f5a83)
+```
+search_bar.xml 레이아웃 리소스 파일을 새로 추가하였습니다.
+CardView와 ConstraintLayout 안에 자동완성 검색 기능을 위한 AutoCompleteTextView와 ImageView를 배치하였습니다.
+```
 ## 사용자 별점 기능, 한 줄 평가 기능 추가
