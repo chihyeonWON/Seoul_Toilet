@@ -245,6 +245,119 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
 선택 옵션인 snippet, icon은 마커를 클릭했을 때 풍선 도움말로 표시하는 정보입니다.
 여기서는 json 데이터의 FNAME 과 ANAME을 줘서 구현했습니다.
 ```
+## AsyncTask -> Coroutine
+현재 AsyncTask는 deprecated 되어 많은 안드로이드 개발자들이 AsyncTask 대신 코루틴을 선호하며, 공식적으로도 코루틴이 권장되고 있습니다.
+따라서 24년 현재 프로젝트의 AsyncTask를 코루틴으로 마이그레이션하는 작업을 수행하였습니다. 코루틴으로 비동기 작업을 처리하면 얻는 이점들로는 다음과 같습니다.
+- 유지보수성: AsyncTask는 코드가 복잡해지고, 여러 콜백과 내부 클래스를 관리해야 하기 때문에 유지보수가 어렵습니다. 반면, 코루틴은 코드를 더 간결하고 읽기 쉽게 만들어 유지보수를 용이하게 합니다.
+- 생명주기 인식: AsyncTask는 액티비티나 프래그먼트의 생명주기를 인식하지 못해 메모리 누수를 일으킬 수 있습니다. 코루틴은 생명주기를 인식하는 스코프(LifecycleScope)와 함께 사용할 수 있어 안전하게 리소스를 관리할 수 있습니다.
+- 오류 처리: AsyncTask는 오류 처리가 복잡하지만, 코루틴은 try/catch 블록을 사용하여 간단하게 오류를 처리할 수 있습니다.
+- 취소 가능성: AsyncTask는 취소가 번거롭고 불완전할 수 있지만, 코루틴은 코루틴 스코프 내에서 쉽게 취소할 수 있으며, 취소 시 모든 관련 작업이 정리됩니다.
+- 동시성: 코루틴은 동시에 여러 비동기 작업을 쉽게 처리할 수 있으며, async와 await 패턴을 사용하여 결과를 효율적으로 합칠 수 있습니다.
+- 성능: 코루틴은 경량 스레드로, 많은 수의 동시 작업을 처리할 때 성능상의 이점을 제공합니다.
+- 구조화된 동시성: 코루틴은 구조화된 동시성을 제공하여, 관련된 모든 작업이 함께 시작되고 종료될 수 있도록 합니다.
+```kotlin
+// 화장실 정보를 읽어와 JSONObject 로 반환하는 함수
+    suspend fun readData(startIndex: Int, lastIndex: Int): JSONObject {
+        val url = URL("http://openAPI.seoul.go.kr:8088/${API_KEY}/json/SearchPublicToiletPOIService/${startIndex}/${lastIndex}")
+        val connection = url.openConnection()
+
+        return withContext(Dispatchers.IO) {
+            val data = connection.getInputStream().readBytes().toString(charset("UTF-8"))
+            JSONObject(data)
+        }
+    }
+```
+```
+
+```
+```kotlin
+// 화장실 데이터를 읽어오는 코루틴
+    fun CoroutineScope.loadToilets() {
+        launch {
+            // 구글맵 마커 초기화
+            googleMap?.clear()
+            // 화장실 정보 초기화
+            toilets = JSONArray()
+
+            val step = 1000
+            var startIndex = 1
+            var lastIndex = step
+            var totalCount = 0
+
+            do {
+                // startIndex, lastIndex 로 데이터 조회
+                val jsonObject = readData(startIndex, lastIndex)
+
+                // totalCount를 가져온다.
+                totalCount = jsonObject.getJSONObject("SearchPublicToiletPOIService")
+                    .getInt("list_total_count")
+
+                // 화장실 정보 데이터 집합을 가져온다.
+                val rows = jsonObject.getJSONObject("SearchPublicToiletPOIService").getJSONArray("row")
+
+                // 기존에 읽은 데이터와 병합
+                toilets.merge(rows)
+
+                // UI 업데이트를 위해 메인 스레드에서 실행
+                withContext(Dispatchers.Main) {
+                    updateUI(rows) // UI 업데이트 함수
+                }
+
+                // step 만큼 startIndex와 lastIndex를 증가
+                startIndex += step
+                lastIndex += step
+
+            } while (lastIndex < totalCount)
+        }
+    }
+```
+```
+
+```
+```kotlin
+ // UI 업데이트 함수
+    fun updateUI(rows: JSONArray) {
+        // 여기에 UI 업데이트 로직 구현
+        rows?.let {
+            for (i in 0 until it.length()) {
+                // 마커 추가
+                addMarkers(it.getJSONObject(i))
+            }
+        }
+        // clusterManager의 클러스터링 실행
+        clusterManager?.cluster()
+    }
+```
+```
+
+```
+```kotlin
+// 앱이 활성화될때 서울시 화장실 데이터를 읽어옴
+    fun startLoadingToilets() {
+        // 코루틴 스코프 생성 및 실행
+        CoroutineScope(Dispatchers.Main).loadToilets()
+    }
+
+    // 앱이 비활성화 될때 백그라운드 작업 취소
+    fun stopLoadingToilets() {
+        // 코루틴 취소
+        CoroutineScope(Dispatchers.Main).cancel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        startLoadingToilets()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        stopLoadingToilets()
+    }
+```
+```
+
+```
+
 
 ## 클러스터 작업
 #### 발생한 문제 상황
