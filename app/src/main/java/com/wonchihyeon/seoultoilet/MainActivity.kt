@@ -9,7 +9,11 @@ import android.location.LocationManager
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.LayoutInflater
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -22,6 +26,11 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.clustering.ClusterManager
 import com.wonchihyeon.seoultoilet.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URL
@@ -52,9 +61,6 @@ class MainActivity : AppCompatActivity() {
     // 서울 열린 데이터 광장에서 발급받은 API 키 입력
     val API_KEY = "7441494453686575343659486b4e62"
 
-    // 앱이 비활성화될때 백그라운드 작업도 취소하기 위한 변수 선언
-    var task: ToiletReadTask? = null
-
     // 서울시 화장실 정보 집합을 저장할 Array 변수, 검색을 위해 저장
     var toilets = JSONArray()
 
@@ -69,6 +75,9 @@ class MainActivity : AppCompatActivity() {
 
     // ClusterRenderer 변수 선언
     var clusterRenderer: ClusterRenderer? = null
+
+    // JSONObject 를 키로 MyItem 객체를 저장할 맵
+    val itemMap = mutableMapOf<JSONObject, MyItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -210,44 +219,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 화장실 정보를 읽어와 JSONObject 로 반환하는 함수
-    fun readData(startIndex: Int, lastIndex: Int): JSONObject {
+    suspend fun readData(startIndex: Int, lastIndex: Int): JSONObject {
         val url =
-            URL("http://openAPI.seoul.go.kr:8088" + "/${API_KEY}/json/SearchPublicToiletPOIService/${startIndex}/${lastIndex}")
+            URL("http://openAPI.seoul.go.kr:8088/${API_KEY}/json/SearchPublicToiletPOIService/${startIndex}/${lastIndex}")
         val connection = url.openConnection()
 
-        val data = connection.getInputStream().readBytes().toString(charset("UTF-8"))
-        return JSONObject(data)
+        return withContext(Dispatchers.IO) {
+            val data = connection.getInputStream().readBytes().toString(charset("UTF-8"))
+            JSONObject(data)
+        }
     }
 
-    // 화장실 데이터를 읽어오는 AsyncTask
-    inner class ToiletReadTask : AsyncTask<Void, JSONArray, String>() {
+    // 화장실 데이터를 읽어오는 코루틴
+    fun CoroutineScope.loadToilets() {
 
-        // 데이터를 읽기 전에 기존 데이터 초기화
-        override fun onPreExecute() {
-            // 구글맵 마커 초기화
+        // autoCompletTextView
+        val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
+
+        launch {
+            // 초기화 코드를 여기에 배치
             googleMap?.clear()
-            // 화장실 정보 초기화
             toilets = JSONArray()
-        }
+            itemMap.clear()
 
-        override fun doInBackground(vararg params: Void?): String {
-            // 서울시 데이터는 최대 1000 개씩 가져올 수 있기 때문에
-            // step 만큼 startIndex와 lastIndex 값을 변경하며 여러번 호출
             val step = 1000
             var startIndex = 1
             var lastIndex = step
             var totalCount = 0
 
             do {
-                // 백그라운드 작업이 취소된 경우 루프를 빠져나간다.
-                if (isCancelled) break
-
-                // totalCount가 0이 아닌경우 최초 실행이 아니므로 step 만큼 startIndex와 lastIndex를 증가
-                if (totalCount != 0) {
-                    startIndex += step
-                    lastIndex += step
-                }
-
                 // startIndex, lastIndex 로 데이터 조회
                 val jsonObject = readData(startIndex, lastIndex)
 
@@ -256,62 +256,177 @@ class MainActivity : AppCompatActivity() {
                     .getInt("list_total_count")
 
                 // 화장실 정보 데이터 집합을 가져온다.
-                val rows =
-                    jsonObject.getJSONObject("SearchPublicToiletPOIService").getJSONArray("row")
+                val rows = jsonObject.getJSONObject("SearchPublicToiletPOIService").getJSONArray("row")
 
                 // 기존에 읽은 데이터와 병합
                 toilets.merge(rows)
 
-                // UI 업데이트를 위해 progress 발행
-                publishProgress(rows)
-
-            } while (lastIndex < totalCount) // lastIndex가 총 개수보다 적으면 반환한다.
-
-            return "complete"
-        }
-
-        // 데이터를 읽어올때마다 중간중간 실행
-        override fun onProgressUpdate(vararg values: JSONArray?) {
-            // vararg는 JSONArray 파라미터를 가변적으로 전달하도록 하는 키워드
-
-            //인덱스 0의 데이터를 사용
-            val array = values[0]
-            array?.let {
-                for (i in 0 until array.length()) {
-                    // 마커 추가
-                    addMarkers(array.getJSONObject(i))
+                // UI 업데이트를 위해 메인 스레드에서 실행
+                withContext(Dispatchers.Main) {
+                    updateUI(rows) // UI 업데이트 함수
                 }
-            }
 
-            // clusterManager의 클러스터링 실행
-            clusterManager?.cluster()
-        }
+                // step 만큼 startIndex와 lastIndex를 증가
+                startIndex += step
+                lastIndex += step
 
-        fun addMarkers(toilet: JSONObject) {
-            clusterManager?.addItem(
-                MyItem(
-                    LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
-                    toilet.getString("FNAME"),
-                    toilet.getString("ANAME"),
-                    BitmapDescriptorFactory.fromBitmap(bitmap)
+            } while (lastIndex < totalCount)
+
+            // 백그라운드 작업이 완료된 후 실행될 코드를 여기에 배치
+            withContext(Dispatchers.Main) {
+                // 자동완성 텍스트뷰(AutoCompleteTextView)에서 사용할 텍스트 리스트
+                val textList = mutableListOf<String>()
+
+                // 모든 화장실의 이름을 텍스트 리스트에 추가
+                for (i in 0 until toilets.length()) {
+                    val toilet = toilets.getJSONObject(i)
+                    textList.add(toilet.getString("FNAME"))
+                }
+
+                // 자동완성 텍스트뷰에서 사용하는 어댑터 추가
+                val adapter = ArrayAdapter(
+                    this@MainActivity,
+                    android.R.layout.simple_dropdown_item_1line,
+                    textList
                 )
-            )
+
+                // 자동완성이 시작되는 글자수 지정
+                autoCompleteTextView.threshold = 1
+                // autoCompleteTextView의 어댑터를 상단에서 만든 어댑터로 지정
+                autoCompleteTextView.setAdapter(adapter)
+            }
         }
+    }
+
+
+    // UI 업데이트 함수
+    fun updateUI(rows: JSONArray) {
+        // 여기에 UI 업데이트 로직 구현
+        rows?.let {
+            for (i in 0 until it.length()) {
+                // 마커 추가
+                addMarkers(it.getJSONObject(i))
+            }
+        }
+        // clusterManager의 클러스터링 실행
+        clusterManager?.cluster()
+    }
+
+    fun addMarkers(toilet: JSONObject) {
+        val item = MyItem(
+            LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
+            toilet.getString("FNAME"),
+            toilet.getString("ANAME"),
+            BitmapDescriptorFactory.fromBitmap(bitmap)
+        )
+
+        // 아이템맵에 toilet 객체를 키로 MyItem 객체 저장
+        itemMap.put(toilet, item)
+
+        clusterManager?.addItem(
+            MyItem(
+                LatLng(toilet.getDouble("Y_WGS84"), toilet.getDouble("X_WGS84")),
+                toilet.getString("FNAME"),
+                toilet.getString("ANAME"),
+                BitmapDescriptorFactory.fromBitmap(bitmap)
+            )
+        )
+    }
+
+    // JSONArray에서 원소의 속성으로 원소를 검색.
+    // propertyName: 속성이름
+    // value: 값
+    fun JSONArray.findByChildProperty(propertName: String, value: String): JSONObject? {
+        // JSONObject를 순회하면서 각 JSONObject의 프로퍼티의 값이 같은지 확인
+        for (i in 0 until length()) {
+            val obj = getJSONObject(i)
+            if (value == obj.getString(propertName)) return obj
+        }
+        return null
     }
 
     // 앱이 활성화될때 서울시 화장실 데이터를 읽어옴
-    override fun onStart() {
-        super.onStart()
-        task?.cancel(true)
-        task = ToiletReadTask()
-        task?.execute()
+    fun startLoadingToilets() {
+        // 코루틴 스코프 생성 및 실행
+        CoroutineScope(Dispatchers.Main).loadToilets()
     }
 
     // 앱이 비활성화 될때 백그라운드 작업 취소
+    fun stopLoadingToilets() {
+        // 코루틴 취소
+        CoroutineScope(Dispatchers.Main).cancel()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        startLoadingToilets()
+
+        // imageView
+        val imageView = findViewById<ImageView>(R.id.imageView)
+
+        // autoCompletTextView
+        val autoCompleteTextView = findViewById<AutoCompleteTextView>(R.id.autoCompleteTextView)
+
+        // searchBar 의 검색 아이콘의 이벤트 리스너 설정
+        imageView.setOnClickListener {
+            // autoCompleteTextView 의 텍스트를 읽어 키워드로 가져옴
+            val keyword = autoCompleteTextView.text.toString()
+            // 키워드 값이 없으면 그대로 리턴
+            if (TextUtils.isEmpty(keyword)) return@setOnClickListener
+            // 검색 키워드에 해당하는 JSONObject 를 찾는다.
+            toilets.findByChildProperty("FNAME", keyword)?.let {
+                // itemMap 에서 JSONObject 를 키로 가진 MyItem 객체를 가져온다.
+                val myItem = itemMap[it]
+                // ClusterRenderer 에서 myItem 을 기반으로 마커를 검색한다.
+                // myItem 은 위도,경도,제목,설명 속성이 같으면 같은 객체로 취급됨
+                val marker = clusterRenderer?.getMarker(myItem)
+                // 마커에 인포 윈도우를 보여준다
+                marker?.showInfoWindow()
+                // 마커의 위치로 맵의 카메라를 이동한다.
+                googleMap?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(it.getDouble("Y_WGS84"), it.getDouble("X_WGS84")), DEFAULT_ZOOM_LEVEL
+                    )
+                )
+                clusterManager?.cluster()
+            }
+
+            // 검색 텍스트뷰의 텍스트를 지운다.
+            autoCompleteTextView.setText("")
+        }
+
+        // AutoCompleteTextView의 항목 선택 이벤트 리스너 설정
+        autoCompleteTextView.setOnItemClickListener { _, _, position, _ ->
+            // 선택된 항목의 텍스트를 가져옴
+            val keyword = autoCompleteTextView.adapter.getItem(position).toString()
+            // 키워드 값이 없으면 그대로 리턴
+            if (TextUtils.isEmpty(keyword)) return@setOnItemClickListener
+            // 검색 키워드에 해당하는 JSONObject 를 찾는다.
+            toilets.findByChildProperty("FNAME", keyword)?.let {
+                // itemMap 에서 JSONObject 를 키로 가진 MyItem 객체를 가져온다.
+                val myItem = itemMap[it]
+                // ClusterRenderer 에서 myItem 을 기반으로 마커를 검색한다.
+                // myItem 은 위도,경도,제목,설명 속성이 같으면 같은 객체로 취급됨
+                val marker = clusterRenderer?.getMarker(myItem)
+                // 마커에 인포 윈도우를 보여준다
+                marker?.showInfoWindow()
+                // 마커의 위치로 맵의 카메라를 이동한다.
+                googleMap?.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(it.getDouble("Y_WGS84"), it.getDouble("X_WGS84")), DEFAULT_ZOOM_LEVEL
+                    )
+                )
+                clusterManager?.cluster()
+            }
+
+            // 검색 텍스트뷰의 텍스트를 지운다.
+            autoCompleteTextView.setText("")
+        }
+    }
+
     override fun onStop() {
         super.onStop()
-        task?.cancel(true)
-        task = null
+        stopLoadingToilets()
     }
 
     // 하단부터 맵뷰의 라이프사이클 함수 호출을 위한 코드들
