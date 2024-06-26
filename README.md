@@ -463,7 +463,7 @@ fun addMarkers(toilet: JSONObject) {
 ```
 클러스터링 작업을 수행하여 마커가 겹치는 경우 마커의 개수를 숫자로 보여주게 되어 마커가 겹쳐 알아보기 힘든 문제를 성공적으로 해결하였습니다.
 ```
-## 카메라 각도 변경
+## 24.06.25 카메라 각도 변경
 ![2024-06-26 02;04;15](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/866cf3d2-fbee-405c-afbf-a7f43768c2e8)
 ```
 카메라 각도를 변경하여서 입체감이 느껴지도록 수정해보았습니다.
@@ -472,7 +472,7 @@ fun addMarkers(toilet: JSONObject) {
 사용자가 카메라각도를 조절할 수 있도록 하는 기능을 넣거나 두 개의 화면을 제공하는 방법도
 괜찮은 것 같습니다.
 ```
-## 사용자 편의성을 위한 검색 기능 추가
+## 24.06.26 사용자 편의성을 위한 검색 기능 추가
 ```
 내가 방문할 곳이나 방문한 곳에 화장실이 있는 지 검색하고 싶을 때가 있습니다.
 사용자의 편의성을 위해서 검색 기능을 추가하여야 합니다.
@@ -486,6 +486,7 @@ CardView와 ConstraintLayout 안에 자동완성 검색 기능을 위한 AutoCom
 #### MainActivity에 검색 바 UI 추가
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/06ba4e42-ec22-4646-bb11-277b2f735ead)    
 ![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/6dcc3d7e-c69d-4078-8cc1-a31f4aac8b52)
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/57048b69-1388-4906-b6b6-011dbe1f51d7)
 ```
 MainActivity에 앞서 만든 검색 바 UI 를 include 태그를 사용하여 추가하였습니다.
 ```
