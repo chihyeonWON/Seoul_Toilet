@@ -268,7 +268,7 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
     }
 ```
 ```
-
+네트워크/DB 입출력이 있는 작업들에 대해 적절한 Thread로 할당하는 역할을 하는 Dispatchers.IO로 withContext(문맥교환)하였습니다.
 ```
 ```kotlin
 // 화장실 데이터를 읽어오는 코루틴
@@ -312,7 +312,8 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
     }
 ```
 ```
-
+readData 메서드를 서버에서 필요할 때 데이터를 요청하는 CoroutineScope로 감쌌습니다. 이 중 UI 업데이트(지도에 마커표시)하기 위해
+Dispatchers.Main으로 문맥교환하였습니다.
 ```
 ```kotlin
  // UI 업데이트 함수
@@ -329,7 +330,7 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
     }
 ```
 ```
-
+마커를 업데이트하는 로직을 let 영역함수에서 구현하였습니다.
 ```
 ```kotlin
 // 앱이 활성화될때 서울시 화장실 데이터를 읽어옴
@@ -355,9 +356,9 @@ UI 업데이트 시 onPostExecute() 대신 onProgressUpdate() 를 사용하였�
     }
 ```
 ```
-
+액티비티의 생명 주기에서 더 간단하게 코드를 처리할 수 있게 되었습니다.
+또 onStop에서 AsyncTask는 취소(cancel())만 가능했다면 코루틴은 취소말고도 더 많은 작업을 수행할 수 있게 됩니다.
 ```
-
 
 ## 클러스터 작업
 #### 발생한 문제 상황
