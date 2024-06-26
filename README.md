@@ -483,4 +483,11 @@ fun addMarkers(toilet: JSONObject) {
 search_bar.xml 레이아웃 리소스 파일을 새로 추가하였습니다.
 CardView와 ConstraintLayout 안에 자동완성 검색 기능을 위한 AutoCompleteTextView와 ImageView를 배치하였습니다.
 ```
+#### MainActivity에 검색 바 UI 추가
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/06ba4e42-ec22-4646-bb11-277b2f735ead)    
+![image](https://github.com/chihyeonwon/Seoul_Toilet/assets/58906858/6dcc3d7e-c69d-4078-8cc1-a31f4aac8b52)
+```
+MainActivity에 앞서 만든 검색 바 UI 를 include 태그를 사용하여 추가하였습니다.
+```
+
 ## 사용자 별점 기능, 한 줄 평가 기능 추가
